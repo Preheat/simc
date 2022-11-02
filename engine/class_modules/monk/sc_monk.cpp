@@ -2829,7 +2829,8 @@ struct spinning_crane_kick_t : public monk_melee_attack_t
   spinning_crane_kick_t( monk_t* p, util::string_view options_str )
     : monk_melee_attack_t(
           "spinning_crane_kick", p,
-          ( p->specialization() == MONK_BREWMASTER ? p->spec.spinning_crane_kick_brm : p->spec.spinning_crane_kick ) )
+          ( p->specialization() == MONK_BREWMASTER ? p->spec.spinning_crane_kick_brm : p->spec.spinning_crane_kick ) ),
+    chi_x( nullptr )
   {
     parse_options( options_str );
 
@@ -2955,7 +2956,7 @@ struct spinning_crane_kick_t : public monk_melee_attack_t
 
     if ( p()->specialization() == MONK_WINDWALKER )
     {
-      if ( p()->buff.chi_energy->up() )
+      if ( chi_x && p()->buff.chi_energy->up() )
         chi_x->execute();
 
       // Bonedust Brew
@@ -4088,9 +4089,15 @@ struct resonant_fists_t : public monk_spell_t
   resonant_fists_t( monk_t& p )
     : monk_spell_t( "resonant_fists", &p, p.talent.general.resonant_fists->effectN( 2 ).trigger() )
   {
-    trigger_resonant_fists = false;
     background = true;
     aoe        = -1;
+  }
+
+  void init() override
+  {
+    monk_spell_t::init();
+
+    trigger_resonant_fists = false;
   }
 
   double action_multiplier() const override
@@ -9032,10 +9039,10 @@ void monk_t::create_buffs ()
     buff.weapons_of_order_ww = make_buff ( this, "weapons_of_order_ww", find_spell ( 311054 ) )
       ->set_default_value ( find_spell ( 311054 )->effectN ( 1 ).base_value () )
       ->set_chance ( covenant.kyrian->ok () ? 1 : 0 );
-
-    buff.windwalking_venthyr =
-      make_buff ( this, "windwalking_venthyr", passives.fallen_monk_windwalking )->set_default_value_from_effect ( 1 );
   }
+
+  buff.windwalking_venthyr =
+    make_buff ( this, "windwalking_venthyr", passives.fallen_monk_windwalking )->set_default_value_from_effect ( 1 );
 
   // Covenant Conduits
   buff.fortifying_ingrediences = make_buff<absorb_buff_t>( this, "fortifying_ingredients", find_spell( 336874 ) );

@@ -5,8 +5,8 @@
 
 #include "config.hpp"
 #include "simulationcraft.hpp"
+#include "action/parse_buff_effects.hpp"
 #include "player/covenant.hpp"
-#include "player/parse_buff_effects.hpp"
 #include "player/pet_spawner.hpp"
 
 namespace
@@ -2152,6 +2152,7 @@ public:
 
   druid_action_t( std::string_view n, druid_t* player, const spell_data_t* s = spell_data_t::nil() )
     : ab( n, player, s ),
+      parse_buff_effects_t( this ),
       dot_name( n ),
       autoshift( nullptr ),
       free_spell( free_spell_e::NONE ),
@@ -2161,8 +2162,6 @@ public:
       is_auto_attack( false ),
       break_stealth( !ab::data().flags( spell_attribute::SX_NO_STEALTH_BREAK ) )
   {
-    action_ = this;
-
     // WARNING: auto attacks will NOT get processed here since they have no spell data
     if ( ab::data().ok() )
     {
@@ -2373,11 +2372,9 @@ public:
 
   void apply_buff_effects()
   {
-    using C = const conduit_data_t&;
-
     parse_buff_effects( p()->buff.ravenous_frenzy );
     parse_buff_effects( p()->buff.sinful_indulgence );
-    parse_buff_effects<C>( p()->buff.convoke_the_spirits, p()->conduit.conflux_of_elements );
+    parse_buff_effects( p()->buff.convoke_the_spirits );
     parse_buff_effects( p()->buff.lone_empowerment );
 
     // Class
@@ -2439,7 +2436,7 @@ public:
     parse_buff_effects( p()->buff.tooth_and_claw, false );
     parse_buff_effects( p()->buff.vicious_cycle_mangle, true, true );
     parse_buff_effects( p()->buff.vicious_cycle_maul, true, true );
-    parse_buff_effects<C>( p()->buff.savage_combatant, p()->conduit.savage_combatant );
+    parse_buff_effects( p()->buff.savage_combatant );
 
     // Restoration
     parse_buff_effects( p()->buff.abundance );
