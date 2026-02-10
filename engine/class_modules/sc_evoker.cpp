@@ -8561,6 +8561,8 @@ parsed_assisted_combat_rule_t evoker_t::parse_assisted_combat_rule( const assist
   {
     return { "!dot.fire_breath_damage.ticking" };
   }
+  if ( rule.condition_type == AC_AURA_MISSING_PLAYER && rule.condition_value_1 == 364342 ) // Blessing of the Bronze
+    return { "" };
 
   // if ( rule.condition_type == AC_AURA_ON_PLAYER && rule.condition_value_1 == 410089 )
   //{
